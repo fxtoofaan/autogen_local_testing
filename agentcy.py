@@ -10,7 +10,7 @@ autogen.ChatCompletion.start_logging()
 # Prompt the user for input
 user_task = input("Please enter the task for the new client's campaign brief: ")
 
-config_list_local = [
+config_list = [
     {
         "model": "TheBloke/Mistral-7B-OpenOrca-AWQ",
         "api_base": "http://localhost:8000/v1",
@@ -19,19 +19,40 @@ config_list_local = [
     }
 ]
 
+#Agents Block
+gpt4_config = {
+    "model": "TheBloke/Mistral-7B-OpenOrca-AWQ",
+    "seed": 42,  # change the seed for different trials
+    "temperature": 0,
+    "config_list": {"config_list": config_list},
+    "request_timeout": 600,
+}
+
 response = oai.Completion.create(
-    config_list=config_list_local,
+    config_list=[
+    {
+        "model": "TheBloke/Mistral-7B-OpenOrca-AWQ",
+        "api_base": "http://localhost:8000/v1",
+        "api_type": "open_ai",
+        "api_key": "NULL"
+    }
+    ],
     prompt="hi",
 )
 print(response)
 
 response = oai.ChatCompletion.create(
-    config_list=config_list_local,
+    config_list=[
+    {
+        "model": "TheBloke/Mistral-7B-OpenOrca-AWQ",
+        "api_base": "http://localhost:8000/v1",
+        "api_type": "open_ai",
+        "api_key": "NULL"
+    }
+    ],
     messages=[{"role": "user", "content": "hi"}]
 )
 print(response)
-
-
 
 client = autogen.UserProxyAgent(
     name="Client",
@@ -41,7 +62,7 @@ client = autogen.UserProxyAgent(
     
 agency_strategist = autogen.AssistantAgent(
     name="Agency_Strategist",
-    llm_config={"config_list": config_list_local},
+    llm_config={"config_list": gpt4_config},
     system_message=f'''
     You are the Lead Strategist.
     Your primary responsibility is to draft strategic briefs that effectively position our client's brand in the market.
@@ -56,7 +77,7 @@ agency_strategist = autogen.AssistantAgent(
 
 agency_researcher = autogen.AssistantAgent(
     name="Agency_Researcher",
-    llm_config={"config_list": config_list_local},
+    llm_config={"config_list": gpt4_config},
     system_message=f'''
     You are the Lead Researcher. 
     Your primary responsibility is to delve deep into understanding user pain points, identifying market opportunities, and analyzing prevailing market conditions.
@@ -70,7 +91,7 @@ agency_researcher = autogen.AssistantAgent(
 
 agency_designer = autogen.AssistantAgent(
     name="Agency_Designer",
-    llm_config={"config_list": config_list_local},
+    llm_config={"config_list": gpt4_config},
     system_message=f'''
     You are the Lead Designer.
     Your primary responsibility is to transform strategic and marketing ideas into compelling visual narratives.
@@ -82,7 +103,7 @@ agency_designer = autogen.AssistantAgent(
 
 agency_writer = autogen.AssistantAgent(
     name="Agency_Copywriter",
-    llm_config={"config_list": config_list_local},
+    llm_config={"config_list": gpt4_config},
     system_message=f'''
     You are the Lead Copywriter.
     Your primary role is to craft compelling narratives and messages that align with the brand's strategy and resonate with its audience.
@@ -93,7 +114,7 @@ agency_writer = autogen.AssistantAgent(
 
 agency_marketer = autogen.AssistantAgent(
     name="Agency_Marketer",
-    llm_config={"config_list": config_list_local},
+    llm_config={"config_list": gpt4_config},
     system_message=f'''
     You are the Lead Marketer. 
     Your primary role is to take the strategy and insights derived from research and transform them into compelling marketable ideas that resonate with the target audience.
@@ -106,7 +127,7 @@ agency_marketer = autogen.AssistantAgent(
 
 agency_mediaplanner = autogen.AssistantAgent(
     name="Agency_Media_Planner",
-    llm_config={"config_list": config_list_local},
+    llm_config={"config_list": gpt4_config},
     system_message=f'''
     You are the Lead Media Planner.
     Your main responsibility is to identify the best mix of media channels to deliver an advertising message to a clients' target audience.
@@ -117,7 +138,7 @@ agency_mediaplanner = autogen.AssistantAgent(
 
 agency_manager = autogen.AssistantAgent(
     name="Agency_Manager",
-    llm_config={"config_list": config_list_local},
+    llm_config={"config_list": gpt4_config},
     system_message=f'''
     You are the Project Manager. 
     Your primary responsibility is to oversee the entire project lifecycle, ensuring that all agents are effectively fulfilling their objectives and tasks on time.
@@ -129,7 +150,7 @@ agency_manager = autogen.AssistantAgent(
 )
 agency_director = autogen.AssistantAgent(
     name="Agency_Director",
-    llm_config={"config_list": config_list_local},
+    llm_config={"config_list": gpt4_config},
     system_message=f'''
     You are the Creative Director at SCTY. Your primary role is to guide the creative vision of the project, ensuring that all ideas are not only unique and compelling but also meet the highest standards of excellence and desirability.
     Drawing from the insights of {user_task}, oversee the creative process, inspire innovation, and set the bar for what's possible. Challenge the team to think outside the box and push the boundaries of creativity.
@@ -142,7 +163,7 @@ agency_director = autogen.AssistantAgent(
 
 agency_accountmanager = autogen.AssistantAgent(
     name="Agency_Account_Manager",
-    llm_config={"config_list": config_list_local},
+    llm_config={"config_list": gpt4_config},
     system_message=f'''
     You are the Account Manager.
     Your primary responsibility is to nurture the relationship between the agency and the client, ensuring clear communication and understanding of the client's needs and feedback.
@@ -155,7 +176,7 @@ agency_accountmanager = autogen.AssistantAgent(
 
 groupchat = autogen.GroupChat(agents=[
     client, agency_researcher, agency_strategist, agency_writer, agency_designer, agency_mediaplanner, agency_marketer, agency_manager, agency_director, agency_accountmanager], messages=[], max_round=20)
-manager = autogen.GroupChatManager(groupchat=groupchat, llm_config={"config_list": config_list_local})
+manager = autogen.GroupChatManager(groupchat=groupchat, llm_config={"config_list": gpt4_config})
 
 client.initiate_chat(
     manager,
