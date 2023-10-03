@@ -18,20 +18,31 @@ config_list_local = [
 ]
 
 local_config = {
-    "seed": 42,  # change the seed for different trials
-    "temperature": 0,
-    "config_list": {"config_list": config_list_local},
-    "request_timeout": 1200,
+    "config_list": config_list_local,
 }
 
 response = autogen.oai.Completion.create(
-    config_list=local_config,
+    config_list = [
+    {
+        "model": "/mnt/model/",
+        "api_base": "http://localhost:8000/v1",
+        "api_type": "open_ai",
+        "api_key": "NULL"
+    }
+    ],
     prompt="hi",
 )
 print(response)
 
 response = autogen.oai.ChatCompletion.create(
-    config_list=local_config,
+    config_list = [
+    {
+        "model": "/mnt/model/",
+        "api_base": "http://localhost:8000/v1",
+        "api_type": "open_ai",
+        "api_key": "NULL"
+    }
+    ],
     messages=[{"role": "user", "content": "hi"}]
 )
 print(response)
